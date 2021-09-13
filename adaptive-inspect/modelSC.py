@@ -1,4 +1,5 @@
 import networkx	as nx
+import matplotlib.pyplot as plt
 
 class SupplyChain:
 
@@ -23,6 +24,18 @@ class SupplyChain:
 			else:
 				self.sc.add_node(n,d=temp)
 				self.sc.add_edge(n-1,n,weight=0.5)
+
+	def drawGraph(self):
+		nx.draw(self.sc)
+		print(self.sc)
+		plt.show()
+
+
+	def genLinear(self):
+		self.sc=nx.gn_graph(20) #best
+		#self.sc=nx.gnc_graph(10) #bad
+		#self.sc=nx.random_k_out_graph(10,1,0.5)
+		#self.sc=nx.scale_free_graph(10)
 
 	def addAsset(self,name=None,i=None,assetType=0):
 		if name is None:
