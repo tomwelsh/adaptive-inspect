@@ -7,31 +7,47 @@ class inspect:
 	def __init__(self,sc=None):
 		#self.techniques=[]
 		self.scTarget=sc
+		self.scHist={}
 		self.values={}
 		self.costs={}
 		self.flags={}
 		self.suspectNodes=[2,1]
 
-
 	#def calcDirect(self,node):
 		#pass
 
 	def monitorTopology():
-		for nodes in self.targetTopology:
+		changedNodes=[]
+		#For each node in topology,
+		#if the hash matches previous:
+		#	update the history and return a list of all changed nodes
 
-		pass
+		for node in self.targetTopology:
+			if hash(node) != self.scHist[node]:
+				changedNodes.append(node)
+				self.scHist[node]=hash(node)
+		return changedNodes
+
 
 	def analyseValue():
-		pass
+		# Set centrality values
+		# Add contextual multipliers
+		#
+		self.calcValueCentrality()
+		self.calcContextualValue()
 
 	def planInspection():
+		self.greedySearch(self.targetTopology)
 		pass
 
-	def executeInspection():
+	def executeInspection(self,nodeStatus):
+		#set a simulated value
 		pass
 
-	def calcCosts(self,node):
-		pass
+	def calcCosts(self,node,cost):
+		#set a simulated value
+		self.costs[node]=cost
+
 
 	def calcValueIOCentrality(self,sc):
 		value={}
@@ -46,6 +62,12 @@ class inspect:
 	def calcValueCentrality(self):
 		self.values=nx.degree_centrality(self.scTarget.sc)
 
+	def calcContextualValue(self):#
+		#set value from static self values
+		pass
+
+	def setContextualValue(self,node,cval):
+		pass
 
 	def checkinfo(self,values):
 		#For a set of nodes, return
