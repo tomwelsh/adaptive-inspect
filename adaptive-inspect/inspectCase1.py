@@ -1,19 +1,19 @@
 import adaptiveInspect
-import modelSCTopology
+import modelTopology
 
 #example adaptive inspection cases
-sc1=SupplyChain()
-sc1.randomSC(5)
-insp1=inspect(sc1)
+sc1=modelTopology.scTopology()
+sc1.sc.randomSC(5)
+insp1=adaptiveInspect.inspect(sc1.sc)
 #add a cyber node
-sc1.addAsset(5,2)
+sc1.sc.addAsset(5,2)
 #sc1.setAssetType('C1',1) #set to cyber
 #sc1.setAssetMaxIntrusive('C1',3)
-sc1.addLink(2,5,'n',0.5)
-sc1.addLink(5,4,'n',0.5)
+sc1.sc.addLink(2,5,'n',0.5)
+sc1.sc.addLink(5,4,'n',0.5)
 insp1.calcValueCentrality()
 
-for n in sc1.nodes:
+for n in sc1.sc.nodes:
 	insp1.flags[n]=1
 
 #sc1.setAssetMaxIntrusive('C1',1)

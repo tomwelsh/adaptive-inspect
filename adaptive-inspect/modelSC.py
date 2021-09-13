@@ -1,3 +1,5 @@
+import networkx	as nx
+
 class SupplyChain:
 
 	#A SupplyChain is a DiGraph containing assets of different types
@@ -7,10 +9,13 @@ class SupplyChain:
 		self.nodes=self.sc.nodes
 		#global intrusive constraint i.e. law enforcement?
 
+	def setAssetModel(self,assModel):
+		self.assetModel=assModel
+
 	def randomSC(self,size=5):#
 		#assets=[]
 		for n in range(size):
-			temp=asset(n)
+			temp=self.assetModel.asset(n)
 			#assets.append(t)
 			if n == 0:
 				self.sc.add_node(n,d=temp)
@@ -22,7 +27,7 @@ class SupplyChain:
 	def addAsset(self,name=None,i=None,assetType=0):
 		if name is None:
 			name=random.randint(0,1000)
-		temp=asset(name,i,assetType)
+		temp=self.assetModel.asset(name,i,assetType)
 		self.sc.add_node(name,d=temp)
 
 

@@ -1,3 +1,5 @@
+import networkx as nx
+
 class inspect:
 	#functions for reasoning about inspection strategies:
 

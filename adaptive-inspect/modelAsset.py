@@ -1,3 +1,5 @@
+
+
 import random
 class asset:
 
@@ -12,6 +14,7 @@ class asset:
 	#
 
 	def __init__(self,name=random.randint(0,100),minCost=2,assetType=0,value=1):
+		#self.modelTopology=modelTopology
 		self.name=name
 		self.assetType=assetType #0=physical, 1=cyber, 2=human
 		self.minCost=minCost #intrusiveness
