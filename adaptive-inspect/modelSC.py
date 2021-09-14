@@ -1,7 +1,7 @@
 import networkx	as nx
 import matplotlib.pyplot as plt
 
-class SupplyChain:
+class SupplyChainInterface:
 
 	#A SupplyChain is a DiGraph containing assets of different types
 
@@ -31,8 +31,9 @@ class SupplyChain:
 		plt.show()
 
 
-	def genLinear(self):
-		self.sc=nx.gn_graph(20) #best
+	def genLinear(self,size):
+		self.sc=nx.gn_graph(size) #best
+		#print(self.sc.nodes())
 		#self.sc=nx.gnc_graph(10) #bad
 		#self.sc=nx.random_k_out_graph(10,1,0.5)
 		#self.sc=nx.scale_free_graph(10)

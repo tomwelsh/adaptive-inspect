@@ -13,38 +13,78 @@ class inspect:
 		self.values={}
 		self.costs={}
 		self.flags={}
-		self.suspectNodes=[2,1]
+		self.suspectNodes=[]
 
 	#def calcDirect(self,node):
 		#pass
 
-	def monitorTopology():
+	def initTopHist(self):
+		for node in self.scTarget.sc.nodes:
+			self.scHist[node]=hash(node)
+			self.flags[node]=1
+
+	def monitorTopology(self):
 		changedNodes=[]
 		#For each node in topology,
 		#if the hash matches previous:
 		#	update the history and return a list of all changed nodes
 
-		for node in self.targetTopology:
+		for node in self.scTarget.sc.nodes:
 			if hash(node) != self.scHist[node]:
 				changedNodes.append(node)
 				self.scHist[node]=hash(node)
 		return changedNodes
 
 
-	def analyseValue():
+	def analyseValue(self):
 		# Set centrality values
 		# Add contextual multipliers
 		#
 		self.calcValueCentrality()
 		self.calcContextualValue()
 
-	def planInspection():
-		self.greedySearch(self.targetTopology)
-		pass
+	def planInspection(self):
+		return self.greedySearch(self.scTarget,1)
 
-	def executeInspection(self,nodeStatus):
-		#set a simulated value
-		pass
+
+	def executeInspection(self,solution,perFlag=False):
+		print("\nInspection")
+		for s in solution:
+
+			for n in self.scTarget.sc.in_edges(s[0]):
+				if n in self.suspectNodes:
+					if self.flags[n[0]]==1:
+						self.flags[n[0]]=2
+			for n in self.scTarget.sc.out_edges(s[0]):
+				if n in self.suspectNodes:
+					if self.flags[n[0]]==1:
+						self.flags[n[1]]=2
+
+			if s[0] in self.suspectNodes:
+
+				#set in nodes to 2
+				#inout=self.scTarget.sc.in_edges(s[0])+self.scTarget.sc.out_edges(s[0])
+			#	print(self.scTarget.sc.in_edges(s[0]))
+			#	print(self.scTarget.sc.out_edges(s[0]))
+				if perFlag==True:
+					for n in self.scTarget.sc.in_edges(s[0]):			#DOUBLE CHECK
+						if self.flags[n[0]]==1:
+							self.flags[n[0]]=2
+					for n in self.scTarget.sc.out_edges(s[0]):
+						if self.flags[n[0]]==1:
+							self.flags[n[1]]=2
+
+			#CHECK IF CONNECTED TO SUSPECT NODES
+
+
+				self.flags[s[0]]=-1
+			else:
+				self.flags[s[0]]=0
+
+
+
+		print("Flags: ")
+		print(self.flags)
 
 	def calcCosts(self,node,cost):
 		#set a simulated value
@@ -82,30 +122,6 @@ class inspect:
 			print("Techique:%d, info:%f, Cost:%d, Result:%d" % (i,t[0]*values[a],t[1],self.checkIntrusive(a,t)))
 			print("")
 		return validCases
-
-	def nextInsp(self,solution):
-		print("\nInspection")
-		for s in solution:
-			if s[0] in self.suspectNodes:
-
-				#set in nodes to 2
-				#inout=self.scTarget.sc.in_edges(s[0])+self.scTarget.sc.out_edges(s[0])
-			#	print(self.scTarget.sc.in_edges(s[0]))
-			#	print(self.scTarget.sc.out_edges(s[0]))
-				for n in self.scTarget.sc.in_edges(s[0]):			#DOUBLE CHECK
-					if self.flags[n[0]]==1:
-						self.flags[n[0]]=2
-				for n in self.scTarget.sc.out_edges(s[0]):
-					if self.flags[n[0]]==1:
-						self.flags[n[1]]=2
-
-				self.flags[s[0]]=-1
-			else:
-				self.flags[s[0]]=0
-		print("Flags: ")
-		print(self.flags)
-
-
 
 	def greedySearch(self,sc,maxCost):
 		#Given a supply chain graph

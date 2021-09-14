@@ -16,13 +16,13 @@ class scTopology:
         #        raise Exception("Not an asset object")
 
         if sc==None:
-            self.sc=modelSC.SupplyChain()
+            self.scInterface=modelSC.SupplyChainInterface()
         else:
             if type(sc) == 'SupplyChain':
-                self.sc=sc
+                self.scInterface=scInterface
             else:
                 raise Exception("Not a SC Object")
-        self.sc.setAssetModel(self.assetModel)
+        self.scInterface.setAssetModel(self.assetModel)
 
     def genRandom(self,params=5):
-        self.sc.randomSC(params)
+        self.scInterface.randomSC(params)
