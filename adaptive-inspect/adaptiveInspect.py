@@ -1,4 +1,5 @@
 import networkx as nx
+import random
 
 class inspect:
 	#functions for reasoning about inspection strategies:
@@ -20,8 +21,9 @@ class inspect:
 
 	def initTopHist(self):
 		for node in self.scTarget.sc.nodes:
-			self.scHist[node]=hash(node)
+			self.scHist[node]=self.hashNode(node)
 			self.flags[node]=1
+			self.values[node]=1
 
 	def monitorTopology(self):
 		changedNodes=[]
@@ -30,11 +32,15 @@ class inspect:
 		#	update the history and return a list of all changed nodes
 
 		for node in self.scTarget.sc.nodes:
-			if hash(node) != self.scHist[node]:
+			if self.hashNode(node) != self.scHist[node]:
 				changedNodes.append(node)
-				self.scHist[node]=hash(node)
+				#print("changed")
+				self.scHist[node]=self.hashNode(node)
+				self.flags[node]=1
 		return changedNodes
 
+	def hashNode(self,node):
+		return hash(str(node))
 
 	def analyseValue(self):
 		# Set centrality values
@@ -65,7 +71,8 @@ class inspect:
 							self.flags[n[1]]=2
 
 			if s[0] in self.suspectNodes:
-
+				self.flags[s[0]]=-1
+				self.found.append(s[0])
 				#set in nodes to 2
 				#inout=self.scTarget.sc.in_edges(s[0])+self.scTarget.sc.out_edges(s[0])
 			#	print(self.scTarget.sc.in_edges(s[0]))
@@ -80,8 +87,7 @@ class inspect:
 
 			#CHECK IF CONNECTED TO SUSPECT NODES
 
-				self.flags[s[0]]=-1
-				self.found.append(s[0])
+
 			else:
 				self.flags[s[0]]=0
 
@@ -89,6 +95,25 @@ class inspect:
 
 		#print("Flags: ")
 		#print(self.flags)
+
+	def tweakNodes(self,ratio):
+		#
+		#print(round((len(self.scHist)-1)*ratio))
+		for i in range(round((len(self.scHist)-1)*ratio)):
+			#print("changed")
+			n=random.randint(0,len(self.scHist)-1)
+			if n not in self.suspectNodes:
+				self.scHist[n]=0
+
+
+
+	def randomCosts(self):
+		#print(len(self.costs)-1)
+		for i in range(len(self.costs)-1):
+			self.costs[i]=random.random()
+
+	def tweakCosts(self):
+		self.costs[random.randint(len(self.costs))-1]=random.random()
 
 	def calcCosts(self,node,cost):
 		#set a simulated value
@@ -113,6 +138,7 @@ class inspect:
 		pass
 
 	def setContextualValue(self,node,cval):
+		#for i in range(len(self.sc))
 		pass
 
 	def checkinfo(self,values):

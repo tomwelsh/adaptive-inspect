@@ -9,13 +9,14 @@ import random
 
 #AInsp loop
 result=0
-for j in range(100):
+runs=100
+for j in range(runs):
     scT1=modelTopology.scTopology()
 
     #generate a new graph
-    size=10
+    size=100
     scT1.scInterface.genLinear(size)
-    #sc1.scInterface.drawGraph()
+    #scT1.scInterface.drawGraph()
 
 
     #create a new adaptive inspection instance
@@ -23,18 +24,29 @@ for j in range(100):
 
     insp1.suspectNodes.append(random.randint(0,size-1))
     for i in range(size):
-        insp1.costs[i]=0.5
+        insp1.costs[i]=0.1
+
+    insp1.randomCosts()
     insp1.initTopHist()
     found=False
     i=0
     while found is not True:
         i=i+1
+        #if ((i % 1) == 0):
+        #    insp1.randomCosts()
+            #print(insp1.costs)
         insp1.monitorTopology()
         insp1.analyseValue()
         plan=insp1.planInspection()
         insp1.executeInspection(plan,True)
         if insp1.found==insp1.suspectNodes:
             found=True
-    #print(i)
+        #print(insp1.found)
+        #print(insp1.suspectNodes)
+        #print(insp1.values)
+        insp1.tweakNodes(0.1)
+        #if i > size: break
+    print(i)
     result=result+i
-print(result/10)
+
+print(result/runs)
