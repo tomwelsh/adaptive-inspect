@@ -14,7 +14,7 @@ class inspect:
 		self.costs={}
 		self.flags={}
 		self.suspectNodes=[]
-
+		self.found=[]
 	#def calcDirect(self,node):
 		#pass
 
@@ -47,18 +47,22 @@ class inspect:
 		return self.greedySearch(self.scTarget,1)
 
 
-	def executeInspection(self,solution,perFlag=False):
-		print("\nInspection")
+	def executeInspection(self,solution,adjFlag=True,perFlag=False):
+		#print("\nInspection")
 		for s in solution:
+			#print(s[0])
+			#print(self.scTarget.sc.in_edges(s[0]))
+			#print(self.scTarget.sc.out_edges(s[0]))
 
-			for n in self.scTarget.sc.in_edges(s[0]):
-				if n in self.suspectNodes:
-					if self.flags[n[0]]==1:
-						self.flags[n[0]]=2
-			for n in self.scTarget.sc.out_edges(s[0]):
-				if n in self.suspectNodes:
-					if self.flags[n[0]]==1:
-						self.flags[n[1]]=2
+			if adjFlag==True:
+				for n in self.scTarget.sc.in_edges(s[0]):
+					if n[0] in self.suspectNodes:
+						if self.flags[n[0]]==1:
+							self.flags[n[0]]=2
+				for n in self.scTarget.sc.out_edges(s[0]):
+					if n[1] in self.suspectNodes:
+						if self.flags[n[0]]==1:
+							self.flags[n[1]]=2
 
 			if s[0] in self.suspectNodes:
 
@@ -76,15 +80,15 @@ class inspect:
 
 			#CHECK IF CONNECTED TO SUSPECT NODES
 
-
 				self.flags[s[0]]=-1
+				self.found.append(s[0])
 			else:
 				self.flags[s[0]]=0
 
 
 
-		print("Flags: ")
-		print(self.flags)
+		#print("Flags: ")
+		#print(self.flags)
 
 	def calcCosts(self,node,cost):
 		#set a simulated value
@@ -135,11 +139,11 @@ class inspect:
 		#globinfo=0
 	    #values=self.calcValueIOCentrality(sc)   #structural value of nodes
 		#get all valid cases
-		print("\n~~Greedy Search~~\n")
-		print("Values:")
-		print(self.values)
-		print("Costs:")
-		print(self.costs)
+	#	print("\n~~Greedy Search~~\n")
+	#	print("Values:")
+	#	print(self.values)
+	#	print("Costs:")
+		#print(self.costs)
 		poss=[]
 		solution=[]
 		priority=[]
@@ -169,6 +173,6 @@ class inspect:
 					solution.append((k,self.values[k],self.costs[k]))
 					tempcost=tempcost+self.costs[k]
 		#print(self.checkinfo(self.values,techniques))
-		print("Solution")
-		print(solution)
+		#print("Solution")
+		#print(solution)
 		return solution
