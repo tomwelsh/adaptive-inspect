@@ -9,12 +9,12 @@ import time
 
 #AInsp loop
 #experiment parameters
-netSizes=[10,20,30,40,50]
+netSizes=[10,30,50]
 randomCosts=[True,False]
 valueAnalysis=[False,True]
-nodeTweak=[0.1,0.2,0.3,0.4]
+nodeTweak=[0,0.1,0.2]#,0.3,0.4]
 adj=[False,True]
-basecosts=0.1
+basecosts=0.5
 #costTweak=[0,1,2,3,4,5]
 runs=100
 avgs=open(("avgs%f" % time.time()),'w')
@@ -26,6 +26,7 @@ for size in netSizes:
             for nTweak in nodeTweak:
                     for aFlag in adj:
                         dataSet.write("\n%d,%s,%s,%f,%s" % (size,rCosts,v,nTweak,aFlag))
+                        dataSet.flush()
                         results=[]
                         result=0
                         for j in range(runs):
@@ -61,13 +62,17 @@ for size in netSizes:
                                 insp1.executeInspection(plan,True)
                                 if insp1.found==insp1.suspectNodes:
                                     found=True
-                                insp1.tweakNodes(0.1)
+                                insp1.tweakNodes(nTweak)
+                                if i >= (size*100):
+                                    i=0
+                                    break
                             #print(i)
                             dataSet.write
                             result=result+i
                             dataSet.write(",%d"%i)
                         #dataSet.write(",%d"%result/runs)
                         avgs.write("%d,%s,%s,%f,%s,%d\n" % (size,rCosts,v,nTweak,aFlag,result/runs))
+                        avgs.flush()
                         print(result/runs)#
 dataSet.close()
 avgs.close()
