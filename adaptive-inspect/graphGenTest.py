@@ -9,11 +9,11 @@ import time
 
 #AInsp loop
 #experiment parameters
-netSizes=[10,30,50]
-randomCosts=[True,False]
-valueAnalysis=[False,True]
-nodeTweak=[0,0.1,0.2]#,0.3,0.4]
-adj=[False,True]
+netSizes=[50]
+randomCosts=[False,True]
+valueAnalysis=[True,False]
+nodeTweak=[0,0.1,0.2,0.3]#,0.3,0.4]
+adj=[True,False]
 basecosts=0.5
 #costTweak=[0,1,2,3,4,5]
 runs=100
@@ -41,7 +41,7 @@ for size in netSizes:
                                 insp1.costs[i]=basecosts
 
                             if rCosts==True:
-                                insp1.randomCosts()
+                                insp1.randomCosts('asd  ')
 
 
                             insp1.initTopHist()
@@ -59,11 +59,11 @@ for size in netSizes:
                                 plan=insp1.planInspection()
 
 
-                                insp1.executeInspection(plan,True)
+                                insp1.executeInspection(plan,aFlag)
                                 if insp1.found==insp1.suspectNodes:
                                     found=True
                                 insp1.tweakNodes(nTweak)
-                                if i >= (size*100):
+                                if i >= (size*10):
                                     i=0
                                     break
                             #print(i)

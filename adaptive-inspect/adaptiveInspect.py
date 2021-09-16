@@ -107,10 +107,13 @@ class inspect:
 
 
 
-	def randomCosts(self):
+	def randomCosts(self,rtype='gauss'):
 		#print(len(self.costs)-1)
 		for i in range(len(self.costs)-1):
-			self.costs[i]=random.random()
+			if rtype=='gauss':
+				self.costs[i]=random.gauss(0,1)
+			else:
+				self.costs[i]=random.random()
 
 	def tweakCosts(self):
 		self.costs[random.randint(len(self.costs))-1]=random.random()
