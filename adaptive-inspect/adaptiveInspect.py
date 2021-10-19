@@ -47,18 +47,23 @@ class inspect:
 		# Add contextual multipliers
 		#
 		self.calcValueCentrality()
+		#self.calcProximity()
 		self.calcContextualValue()
 
 	def planInspection(self):
 		return self.greedySearch(self.scTarget,1)
 
 
-	def executeInspection(self,solution,adjFlag=True,perFlag=False):
+	def executeInspection(self,solution,adjFlag=True,proxFlag=True,perFlag=False):
 		#print("\nInspection")
 		for s in solution:
 			#print(s[0])
 			#print(self.scTarget.sc.in_edges(s[0]))
 			#print(self.scTarget.sc.out_edges(s[0]))
+
+
+			#if proxFlag==True:
+
 
 			if adjFlag==True:
 				for n in self.scTarget.sc.in_edges(s[0]):
