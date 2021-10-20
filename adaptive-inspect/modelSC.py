@@ -36,6 +36,13 @@ class SupplyChainInterface:
 		plt.show()
 
 
+	def drawTree(self,g):
+		from networkx.drawing.nx_pydot import graphviz_layout
+
+		pos = graphviz_layout(g, prog="dot") #dot #circo
+		nx.draw(g,pos,with_labels=True)
+		plt.show()
+
 	def genLinear(self,size):
 		self.sc=nx.gn_graph(size) #best
 		#print(self.sc.nodes())
@@ -57,8 +64,8 @@ class SupplyChainInterface:
 		#proceses in server
 
 		factory=0.3
-		rooms=0.2
-		jitter=0.3
+		rooms=0.1
+		jitter=0.001
 		#for each cell:
 		#if cell is not in a container
 		# if prob random.random() > probContained:
@@ -76,6 +83,7 @@ class SupplyChainInterface:
 		f=0
 		rIndex=0
 		print(list(self.kmap.out_edges('f%d' % f))[rIndex][1])
+		print(list(self.kmap.out_edges('f%d' % f)))
 		for n in self.sc.nodes:
 			magicball=random.random()
 			if magicball <= 0.2:    #add to R
@@ -89,49 +97,22 @@ class SupplyChainInterface:
 			elif 0.6 <= magicball <= 0.8:
 				if f+1 < len(list(self.kmap.out_edges('SC'))):
 					f=f+1
+					rIndex=0
 				self.kmap.add_edge(('f%d' % f),n)
 			elif 0.8 <= magicball <= 1:								#THIS IS BIASED TOWARDS THE LAST NODE
 				if f+1 < len(list(self.kmap.out_edges('SC'))):
 					f=f+1
+					rIndex=0
+					print(rIndex)
 					if rIndex+1 < len(list(self.kmap.out_edges('f%d' % f))):
 						rIndex=rIndex+1
+				print(list(self.kmap.out_edges('f%d' % f)))
+				print(rIndex)
 				self.kmap.add_edge(list(self.kmap.out_edges('f%d' % f))[rIndex][1],n)
 
 
 			else:
 				pass
-
-
-		#for i in self.sc.nodes.keys():
-		#	print(i)
-
-
-
-
-
-
-	#	print(self.sc.nodes)
-	#	for i in range(len(self.sc.nodes)):
-	#		n=random.choice(list(self.sc.nodes.keys()))
-	#		if n not in self.pmaps:
-	#			if random.random() > p:
-	#				if (n+1) in self.pmaps:
-	#					self.pmaps[n]=self.pmaps[n+1]
-	#					self.kmaps[self.pmaps[n]].append(n)
-	#				elif n-1 in self.pmaps:
-	#					self.pmaps[n]=self.pmaps[n-1]
-	#					self.kmaps[self.pmaps[n]].append(n)
-	#				else:
-	#					#create new container ##this should be in reverse
-	#					if len(self.kmaps)==0:
-	#						self.pmaps[n]=0
-	#						self.kmaps[0]=[n]
-	#					else:
-	#						self.kmaps[len(self.kmaps)]=[n]
-	#						self.pmaps[n]=len(self.kmaps)
-	#		print(self.kmaps)
-	#		print(self.pmaps)
-
 
 	def addAsset(self,name=None,i=None,assetType=0):
 		if name is None:

@@ -5,7 +5,7 @@ import time
 
 scT1=modelTopology.scTopology()
                                 #generate a new graph
-scT1.scInterface.genLinear(10)
+scT1.scInterface.genLinear(20)
 scT1.scInterface.genContainers()
 print(scT1.scInterface.kmap.edges())
-scT1.scInterface.drawGraph(scT1.scInterface.kmap)
+scT1.scInterface.drawTree(scT1.scInterface.kmap)
