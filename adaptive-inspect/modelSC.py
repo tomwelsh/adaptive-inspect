@@ -8,6 +8,7 @@ class SupplyChainInterface:
 
 	def __init__(self):
 		self.sc=nx.DiGraph()    #supply chain, connection graph
+
 		self.kmap=nx.DiGraph()   #containment map, place graph
 		self.nodes=self.sc.nodes
 		#self.kmaps={}   #maps between kontainers k and processes and k
@@ -43,28 +44,63 @@ class SupplyChainInterface:
 		nx.draw(g,pos,with_labels=True)
 		plt.show()
 
+
+	def bfs(self,G):
+		#http://www.ics.uci.edu/~eppstein/PADS/BFS.py
+		#breadth first search
+		remapped={0:'1'}
+		visited = set()
+		root=0
+		currentLevel = [root]
+		while currentLevel:
+			for v in currentLevel:
+				visited.add(v)
+			nextLevel = set()
+			levelGraph = {v:set() for v in currentLevel}
+			for v in currentLevel:
+				for w in G[v]:
+					if w not in visited:
+						levelGraph[v].add(w)
+						nextLevel.add(w)
+			yield levelGraph
+			currentLevel = nextLevel
+
+
 	def genLinear(self,size):
 		self.sc=nx.gn_graph(size) #best
-		#print(self.sc.nodes())
+		remapped={}
+		r=self.bfs(self.sc.to_undirected())
+		level=0
+		inc=0
+		lists={}
+		for l in list(r):
+			#print(l)
+			inc=0
+			print(level)
+			#print(list(l))
+			for n in list(l):
+				remapped[n]="%d.%d" % (level,inc)
+				inc=inc+1
+
+			level=level+1
+
+		self.sc=nx.relabel_nodes(self.sc, remapped)
 		#self.sc=nx.gnc_graph(10) #bad
 		#self.sc=nx.random_k_out_graph(10,1,0.5)
 		#self.sc=nx.scale_free_graph(10)
 
 
 
-	def genContainers(self,p=0.1,tl=4):
 
-
+	def genGraphs(self,size):
+		self.genLinear(size)
 		#this is hacky, bidirectional dictionaries, memory usage?!
-
-
 		#categorise containment relationships
 		#package in lorry
 		#machines in factroy
 		#proceses in server
-
 		factory=0.3
-		rooms=0.1
+		rooms=2
 		jitter=0.001
 		#for each cell:
 		#if cell is not in a container
@@ -74,45 +110,36 @@ class SupplyChainInterface:
 		#else:
 			#create new container
 		#self.containers.append(0)
-		self.sc.add_node('SC')
-		print(int(self.sc.number_of_nodes()*(factory+random.uniform(0,jitter))))
-		for f in range(int(self.sc.number_of_nodes()*(factory+random.uniform(0,jitter)))):   #add fact
+		self.kmap.add_node('SC')
+		#print(int(size*(factory+random.uniform(0,jitter))))
+		for f in range(int(size*(factory+random.uniform(0,jitter)))):   #add fact
 				self.kmap.add_edge('SC',('f%d' % f))
-				for r in range(int(self.sc.number_of_nodes()*(rooms+random.uniform(0,jitter)))):	#add rooms
+				for r in range(int((rooms+random.uniform(0,jitter)))):	#add rooms
 					self.kmap.add_edge(('f%d' % f),('f%dr%d' % (f,r)))
 		f=0
 		rIndex=0
-		print(list(self.kmap.out_edges('f%d' % f))[rIndex][1])
-		print(list(self.kmap.out_edges('f%d' % f)))
-		for n in self.sc.nodes:
-			magicball=random.random()
-			if magicball <= 0.2:    #add to R
-				self.kmap.add_edge(list(self.kmap.out_edges('f%d' % f))[rIndex][1],n)
-			elif 0.2 <= magicball <= 0.4: #increment R
-				if rIndex+1 < len(list(self.kmap.out_edges('f%d' % f))):
-					rIndex=rIndex+1
-					self.kmap.add_edge(list(self.kmap.out_edges('f%d' % f))[rIndex][1],n)
-			elif 0.4 <= magicball <= 0.6:
-				self.kmap.add_edge(('f%d' % f),n)
-			elif 0.6 <= magicball <= 0.8:
-				if f+1 < len(list(self.kmap.out_edges('SC'))):
-					f=f+1
-					rIndex=0
-				self.kmap.add_edge(('f%d' % f),n)
-			elif 0.8 <= magicball <= 1:								#THIS IS BIASED TOWARDS THE LAST NODE
-				if f+1 < len(list(self.kmap.out_edges('SC'))):
-					f=f+1
-					rIndex=0
-					print(rIndex)
+		pIndex=0
+		#print(list(self.kmap.out_edges('f%d' % f))[rIndex][1])
+		#print(list(self.kmap.out_edges('f%d' % f)))
+	#	nodes=list(reversed(self.sc.nodes))
+		for n in list(self.sc.nodes):
+			if n !='SC':
+				magicball=random.random()
+				if magicball <= 0.3:    #increment R
+	#				self.kmap.add_edge(('f%d' % f),n)
+					#if can, increment R
 					if rIndex+1 < len(list(self.kmap.out_edges('f%d' % f))):
 						rIndex=rIndex+1
-				print(list(self.kmap.out_edges('f%d' % f)))
-				print(rIndex)
+				elif 0.3 <= magicball <= 0.5:			#Increment F
+					if f+1 < len(list(self.kmap.out_edges('SC'))):
+						f=f+1
+						rIndex=0
+				else:
+					pass
+			#	print(list(self.kmap.out_edges('f%d' % f))[rIndex][1])
 				self.kmap.add_edge(list(self.kmap.out_edges('f%d' % f))[rIndex][1],n)
-
-
-			else:
-				pass
+				#self.sc.add_edge(pIndex,pIndex+1)
+				pIndex=pIndex+1
 
 	def addAsset(self,name=None,i=None,assetType=0):
 		if name is None:
