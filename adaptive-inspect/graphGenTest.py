@@ -9,13 +9,12 @@ import time
 
 #AInsp loop
 #experiment parameters
-netSizes=[20]
+netSizes=[100]
 randomCosts=[True]
-valueAnalysis=[True,False]
-nodeTweak=[0,0.1,0.2]#,0.3,0.4]
+nodeTweak=[0,0.1,0.2,0.5]#,0.3,0.4]
 #adj=[True,False]
-monitor=[True,False]
-container=[0,0.6,0.8]
+monitor=[True]
+container=[0,0.5]
 centr=[0,1] #0 is none, 1 is in, 2 is out, 3 is both
 basecosts=0.5
 #costTweak=[0,1,2,3,4,5]
@@ -23,17 +22,18 @@ runs=10
 timeout=10
 avgs=open(("avgs%f" % time.time()),'w')
 dataSet=open("data%f"% time.time(),'w')
-dataSet.write("NetSize,RandomCosts,ValueAnalysis,MonitorFlag,NodeTweak,AdjacencyFlag,contCost,Results")
-avgs.write("NetSize,RandomCosts,ValueAnalysis,MonitorFlag,NodeTweak,AdjacencyFlag,contCost,Avg")
+dataSet.write("NetSize,RandomCosts,MonitorFlag,NodeTweak,AdjacencyFlag,CalcCentr,contCost,Results")
+avgs.write("NetSize,RandomCosts,MonitorFlag,NodeTweak,AdjacencyFlag,CalcCentr,contCost,Avg")
+calcCent=[True,False]
 
-for size in netSizes:
-    for rCosts in randomCosts:
-        for v in valueAnalysis:
+for calcC in calcCent:
+    for size in netSizes:
+        for rCosts in randomCosts:
             for m in monitor:
                 for contCost in container:   #increase or not in contCost
                     for nTweak in nodeTweak:
                         for cent in centr:  #centrality flag
-                            dataSet.write("\n%d,%s,%s,%s,%f,%d,%f" % (size,rCosts,v,m,nTweak,cent,contCost))
+                            dataSet.write("\n%d,%s,%s,%f,%d,%s,%f" % (size,rCosts,m,nTweak,cent,calcC,contCost))
                             dataSet.flush()
                             results=[]
                             result=0
@@ -52,6 +52,7 @@ for size in netSizes:
                                     insp1.costs[i]=basecosts
                                 if rCosts==True:
                                     insp1.randomCosts('asd  ')
+                                insp1.contCostM=contCost
 
                                 insp1.initTopHist()
 
@@ -61,10 +62,10 @@ for size in netSizes:
                                     i=i+1
                                     if m==True:
                                         insp1.monitorTopology()
-                                    if v==True:
+                                    if calcC==True:
                                         insp1.analyseValue(cent)
 
-                                    insp1.contCostM=contCost
+
                                     plan=insp1.planInspection()
                                     insp1.executeInspection(plan,cent)
 
@@ -82,8 +83,8 @@ for size in netSizes:
                                 result=result+i
                                 dataSet.write(",%d"%i)
                                 #dataSet.write(",%d"%result/runs)
-                            avgs.write("\n%d,%s,%s,%s,%f,%d,%f,%d" % (size,rCosts,v,m,nTweak,cent,contCost,result/runs))
+                            avgs.write("\n%d,%s,%s,%f,%d,%s,%f,%d" % (size,rCosts,m,nTweak,cent,calcC,contCost,result/runs))
                             avgs.flush()
-                            print(result/runs)#
+                        #    print(result/runs)#
 dataSet.close()
 avgs.close()

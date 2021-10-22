@@ -16,7 +16,7 @@ class inspect:
 		self.flags={}
 		self.suspectNodes=[]
 		self.found=[]
-		self.conCostM=0.8
+		self.contCostM=0
 
 
 	def initTopHist(self):
@@ -80,13 +80,6 @@ class inspect:
 				#inout=self.scTarget.sc.in_edges(s[0])+self.scTarget.sc.out_edges(s[0])
 			#	print(self.scTarget.sc.in_edges(s[0]))
 			#	print(self.scTarget.sc.out_edges(s[0]))
-				if perFlag==True:
-					for n in self.scTarget.sc.in_edges(s[0]):			#DOUBLE CHECK
-						if self.flags[n[0]]==1:
-							self.flags[n[0]]=2
-					for n in self.scTarget.sc.out_edges(s[0]):
-						if self.flags[n[0]]==1:
-							self.flags[n[1]]=2
 
 			#CHECK IF CONNECTED TO SUSPECT NODES
 
@@ -137,6 +130,8 @@ class inspect:
 	def calcInCentrality(self):
 		self.values=nx.in_degree_centrality(self.scTarget.sc)
 
+	#	print(self.values)
+
 	def calcValueCentrality(self):
 		self.values=nx.degree_centrality(self.scTarget.sc)
 
@@ -151,7 +146,7 @@ class inspect:
 		tempCosts={}
 		nodes=self.scTarget.getContained(self.scTarget.getContainer(node))
 		for n in nodes:
-				tempCosts[n[1]]=self.costs[n[1]]*self.conCostM
+				tempCosts[n[1]]=self.costs[n[1]]*self.contCostM
 		return tempCosts
 
 	def setContextualValue(self,node,cval):
@@ -195,7 +190,11 @@ class inspect:
 				tempcost=tempcost+self.costs[p]
 				if self.contCostM!=0:
 					containedCosts=self.calcContainedCost(p)
+				#	print(containedCosts)
 					for c in containedCosts:			#update new contained costs
+						#print(self.costs[c])
+						#print(containedCosts[c])
+
 						newCosts[c]=containedCosts[c]
 
 		#we update all costs according to priority NODES
@@ -214,7 +213,10 @@ class inspect:
 				kcost=self.costs[k]
 			#	print(kcost)
 				if k in newCosts:
+				#	print('old'+str(kcost))
+				#	print('n'+str(newCosts[k]))
 					kcost=newCosts[k]
+					#print(k)
 				if (kcost + tempcost) <= maxCost:
 					solution.append((k,self.values[k],kcost))
 					tempcost=tempcost+kcost
