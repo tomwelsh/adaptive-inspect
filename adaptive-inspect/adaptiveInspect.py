@@ -16,8 +16,8 @@ class inspect:
 		self.flags={}
 		self.suspectNodes=[]
 		self.found=[]
-	#def calcDirect(self,node):
-		#pass
+		self.conCostM=0.8
+
 
 	def initTopHist(self):
 		for node in self.scTarget.sc.nodes:
@@ -42,38 +42,36 @@ class inspect:
 	def hashNode(self,node):
 		return hash(str(node))
 
-	def analyseValue(self):
+	def analyseValue(self,c):
 		# Set centrality values
 		# Add contextual multipliers
 		#
-		self.calcValueCentrality()
-		#self.calcProximity()
-		self.calcContextualValue()
+		if c==3:
+			self.calcValueCentrality()
+		elif c==1:
+			self.calcInCentrality()
+		elif c==2:
+			self.calcOutCentrality()
+	#	self.calcContextualValue()
+
 
 	def planInspection(self):
 		return self.greedySearch(self.scTarget,1)
 
 
-	def executeInspection(self,solution,adjFlag=True,proxFlag=True,perFlag=False):
+	def executeInspection(self,solution,adjFlag=0,perFlag=False):
 		#print("\nInspection")
+	#	print(solution)
 		for s in solution:
-			#print(s[0])
-			#print(self.scTarget.sc.in_edges(s[0]))
-			#print(self.scTarget.sc.out_edges(s[0]))
-
-
-			#if proxFlag==True:
-
-
-			if adjFlag==True:
+			if adjFlag>0:
 				for n in self.scTarget.sc.in_edges(s[0]):
 					if n[0] in self.suspectNodes:
 						if self.flags[n[0]]==1:
 							self.flags[n[0]]=2
-				for n in self.scTarget.sc.out_edges(s[0]):
-					if n[1] in self.suspectNodes:
-						if self.flags[n[0]]==1:
-							self.flags[n[1]]=2
+				#for n in self.scTarget.sc.out_edges(s[0]):   #should remove?l$
+				#	if n[1] in self.suspectNodes:
+				#		if self.flags[n[0]]==1:
+				#			self.flags[n[1]]=2
 
 			if s[0] in self.suspectNodes:
 				self.flags[s[0]]=-1
@@ -97,10 +95,6 @@ class inspect:
 				self.flags[s[0]]=0
 
 
-
-		#print("Flags: ")
-		#print(self.flags)
-
 	def tweakNodes(self,ratio):
 		#
 		#print(round((len(self.scHist)-1)*ratio))
@@ -114,7 +108,7 @@ class inspect:
 
 	def randomCosts(self,rtype='gauss'):
 		#print(len(self.costs)-1)
-		for i in range(len(self.costs)-1):
+		for i in self.scTarget.sc.nodes:
 			if rtype=='gauss':
 				self.costs[i]=random.gauss(0,1)
 			else:
@@ -127,39 +121,46 @@ class inspect:
 		#set a simulated value
 		self.costs[node]=cost
 
-
 	def calcValueIOCentrality(self,sc):
 		value={}
 		invalue=nx.in_degree_centrality(self.scTarget.sc)
 		outvalue=nx.out_degree_centrality(self.scTarget.sc)
 
-		print(invalue)
+		#print(invalue)
 		for k in invalue:
 			value[k]=((invalue[k]+outvalue[k])/2)
 		self.IOValues=value
 
+	def calcOutCentrality(self):
+		self.values=nx.out_degree_centrality(self.scTarget.sc)
+
+	def calcInCentrality(self):
+		self.values=nx.in_degree_centrality(self.scTarget.sc)
+
 	def calcValueCentrality(self):
 		self.values=nx.degree_centrality(self.scTarget.sc)
 
-	def calcContextualValue(self):#
-		#set value from static self values
-		pass
+	def calcConnectedValue(self,n):
+		#we compound the value of in node connections
+		value=0
+		for n in self.scTarget.sc.in_edges(n):
+			value=value+(self.values[n]/2)
+		return value
+
+	def calcContainedCost(self,node):
+		tempCosts={}
+		nodes=self.scTarget.getContained(self.scTarget.getContainer(node))
+		for n in nodes:
+				tempCosts[n[1]]=self.costs[n[1]]*self.conCostM
+		return tempCosts
 
 	def setContextualValue(self,node,cval):
 		#for i in range(len(self.sc))
 		pass
 
-	def checkinfo(self,values):
-		#For a set of nodes, return
-		validCases=[]
-		for a in self.scTarget.sc.nodes:
-			print("Asset: %s Value: %f" % (a,values[a]))
-			i=0
-			#for t in techniques:
-			#	i+=1
-			print("Techique:%d, info:%f, Cost:%d, Result:%d" % (i,t[0]*values[a],t[1],self.checkIntrusive(a,t)))
-			print("")
-		return validCases
+	def inspectionInstance(self,node):
+		# TODO: create an instance to reason about possibilities
+		pass
 
 	def greedySearch(self,sc,maxCost):
 		#Given a supply chain graph
@@ -173,15 +174,11 @@ class inspect:
 		#globinfo=0
 	    #values=self.calcValueIOCentrality(sc)   #structural value of nodes
 		#get all valid cases
-	#	print("\n~~Greedy Search~~\n")
-	#	print("Values:")
-	#	print(self.values)
-	#	print("Costs:")
-		#print(self.costs)
 		poss=[]
 		solution=[]
 		priority=[]
 		tempcost=0
+		newCosts={}
 
 
 		#first check flags
@@ -191,22 +188,41 @@ class inspect:
 			elif self.flags[k]==1:
 				poss.append(k)
 
-
 		for p in priority:							#first try to add those flagged as high priority
 			if tempcost+self.costs[p] <= maxCost:
+
 				solution.append((p,self.values[p],self.costs[p]))
 				tempcost=tempcost+self.costs[p]
+				if self.contCostM!=0:
+					containedCosts=self.calcContainedCost(p)
+					for c in containedCosts:			#update new contained costs
+						newCosts[c]=containedCosts[c]
+
+		#we update all costs according to priority NODES
 
 		if tempcost < maxCost:
 			sortval=dict(sorted(self.values.items(), key=lambda item: item[1],reverse=True))
 		#print(sortval)
 
+		#print(sortval)
+	#	print(self.costs)
 		for k, v in sortval.items():
 			if(k in poss):
-				if (self.costs[k] + tempcost) <= maxCost:
-					solution.append((k,self.values[k],self.costs[k]))
-					tempcost=tempcost+self.costs[k]
+			#	print(k)
+			#	print(v)
+			#	print(self.costs[k])
+				kcost=self.costs[k]
+			#	print(kcost)
+				if k in newCosts:
+					kcost=newCosts[k]
+				if (kcost + tempcost) <= maxCost:
+					solution.append((k,self.values[k],kcost))
+					tempcost=tempcost+kcost
+					if self.contCostM!=0:
+						containedCosts=self.calcContainedCost(k)
+						for c in containedCosts:			#update new contained costs
+							newCosts[c]=containedCosts[c]
 		#print(self.checkinfo(self.values,techniques))
 		#print("Solution")
-		#print(solution)
+	#	print(solution)
 		return solution

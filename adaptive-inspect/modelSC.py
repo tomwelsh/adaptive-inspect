@@ -8,7 +8,6 @@ class SupplyChainInterface:
 
 	def __init__(self):
 		self.sc=nx.DiGraph()    #supply chain, connection graph
-
 		self.kmap=nx.DiGraph()   #containment map, place graph
 		self.nodes=self.sc.nodes
 		#self.kmaps={}   #maps between kontainers k and processes and k
@@ -66,17 +65,17 @@ class SupplyChainInterface:
 			currentLevel = nextLevel
 
 
-	def genLinear(self,size):
+	def genConnect(self,size):
 		self.sc=nx.gn_graph(size) #best
 		remapped={}
 		r=self.bfs(self.sc.to_undirected())
 		level=0
 		inc=0
 		lists={}
-		for l in list(r):
+		for l in list(r): #remap for hierarchichal ordering
 			#print(l)
 			inc=0
-			print(level)
+		#	print(level)
 			#print(list(l))
 			for n in list(l):
 				remapped[n]="%d.%d" % (level,inc)
@@ -92,9 +91,7 @@ class SupplyChainInterface:
 
 
 
-	def genGraphs(self,size):
-		self.genLinear(size)
-		#this is hacky, bidirectional dictionaries, memory usage?!
+	def genContainer(self):
 		#categorise containment relationships
 		#package in lorry
 		#machines in factroy
@@ -112,21 +109,17 @@ class SupplyChainInterface:
 		#self.containers.append(0)
 		self.kmap.add_node('SC')
 		#print(int(size*(factory+random.uniform(0,jitter))))
-		for f in range(int(size*(factory+random.uniform(0,jitter)))):   #add fact
+		for f in range(int(self.sc.number_of_nodes()*(factory+random.uniform(0,jitter)))):   #add fact
 				self.kmap.add_edge('SC',('f%d' % f))
 				for r in range(int((rooms+random.uniform(0,jitter)))):	#add rooms
 					self.kmap.add_edge(('f%d' % f),('f%dr%d' % (f,r)))
 		f=0
 		rIndex=0
 		pIndex=0
-		#print(list(self.kmap.out_edges('f%d' % f))[rIndex][1])
-		#print(list(self.kmap.out_edges('f%d' % f)))
-	#	nodes=list(reversed(self.sc.nodes))
 		for n in list(self.sc.nodes):
 			if n !='SC':
 				magicball=random.random()
 				if magicball <= 0.3:    #increment R
-	#				self.kmap.add_edge(('f%d' % f),n)
 					#if can, increment R
 					if rIndex+1 < len(list(self.kmap.out_edges('f%d' % f))):
 						rIndex=rIndex+1
@@ -135,18 +128,27 @@ class SupplyChainInterface:
 						f=f+1
 						rIndex=0
 				else:
+					#hmmm
 					pass
 			#	print(list(self.kmap.out_edges('f%d' % f))[rIndex][1])
 				self.kmap.add_edge(list(self.kmap.out_edges('f%d' % f))[rIndex][1],n)
 				#self.sc.add_edge(pIndex,pIndex+1)
 				pIndex=pIndex+1
 
+
+	def getContainer(self,n):
+		#print(list(self.kmap.in_edges(n)))
+		return list(self.kmap.in_edges(n))[0][0]
+
+
+	def getContained(self,n):
+		return list(self.kmap.out_edges(n))
+
 	def addAsset(self,name=None,i=None,assetType=0):
 		if name is None:
 			name=random.randint(0,1000)
 		temp=self.assetModel.asset(name,i,assetType)
 		self.sc.add_node(name,d=temp)
-
 
 	def allSolutions(self):
 		#generate all subgraphs
