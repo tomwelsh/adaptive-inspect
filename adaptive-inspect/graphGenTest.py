@@ -11,7 +11,7 @@ import time
 #experiment parameters
 netSizes=[100]
 randomCosts=[True]
-nodeTweak=[0.1]#,0.3,0.4]
+nodeTweak=[0.5]#,0.3,0.4]
 #adj=[True,False]
 monitor=[True]
 container=[0]

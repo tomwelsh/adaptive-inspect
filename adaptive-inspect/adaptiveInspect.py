@@ -32,10 +32,11 @@ class inspect:
 		#	update the history and return a list of all changed nodes
 
 		for node in self.scTarget.sc.nodes:
+			#print(self.hashNode(node))
 			if self.hashNode(node) != self.scHist[node]:
 				changedNodes.append(node)
-				print("changed")
-				print(changedNodes)
+				#print("changed")
+				#print(changedNodes)
 				#print("changed")
 				self.scHist[node]=self.hashNode(node)
 				self.flags[node]=1
@@ -93,11 +94,12 @@ class inspect:
 	def tweakNodes(self,ratio):
 		#
 		#print(round((len(self.scHist)-1)*ratio))
-		for i in range(round((len(self.scHist)-1)*ratio)):
-			#print("changed")
-			n=random.randint(0,len(self.scHist)-1)
+		for i in range(round((len(self.scTarget.sc.nodes)-1)*ratio)):
+
+			n=random.choice(list(self.scTarget.sc.nodes))
 			if n not in self.suspectNodes:
 				self.scHist[n]=0
+				#print("changed")
 
 
 
