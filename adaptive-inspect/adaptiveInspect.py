@@ -34,6 +34,8 @@ class inspect:
 		for node in self.scTarget.sc.nodes:
 			if self.hashNode(node) != self.scHist[node]:
 				changedNodes.append(node)
+				print("changed")
+				print(changedNodes)
 				#print("changed")
 				self.scHist[node]=self.hashNode(node)
 				self.flags[node]=1

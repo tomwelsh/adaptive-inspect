@@ -11,10 +11,10 @@ import time
 #experiment parameters
 netSizes=[100]
 randomCosts=[True]
-nodeTweak=[0,0.1,0.2,0.5]#,0.3,0.4]
+nodeTweak=[0.1]#,0.3,0.4]
 #adj=[True,False]
 monitor=[True]
-container=[0,0.5]
+container=[0]
 centr=[0,1] #0 is none, 1 is in, 2 is out, 3 is both
 basecosts=0.5
 #costTweak=[0,1,2,3,4,5]
