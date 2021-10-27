@@ -10,15 +10,14 @@ import time
 #AInsp loop
 #experiment parameters
 netSizes=[100]
-randomCosts=[True]
-nodeTweak=[0.5]#,0.3,0.4]
+randomCosts=[0.3,0.5,1]
+nodeTweak=[0]#,0.3,0.4]
 #adj=[True,False]
-monitor=[True]
-container=[0]
+monitor=[False]
+container=[0.1,0.5]
 centr=[0,1] #0 is none, 1 is in, 2 is out, 3 is both
-basecosts=0.5
 #costTweak=[0,1,2,3,4,5]
-runs=10
+runs=100
 timeout=10
 avgs=open(("avgs%f" % time.time()),'w')
 dataSet=open("data%f"% time.time(),'w')
@@ -48,10 +47,11 @@ for calcC in calcCent:
                                 insp1=adaptiveInspect.inspect(scT1.scInterface)
 
                                 insp1.suspectNodes.append(random.choice(list(scT1.scInterface.sc.nodes())))
-                                for i in range(size):
-                                    insp1.costs[i]=basecosts
-                                if rCosts==True:
+                                if rCosts==1:
                                     insp1.randomCosts('asd  ')
+                                else:
+                                    for n in scT1.scInterface.sc.nodes:
+                                        insp1.costs[n]=rCosts
                                 insp1.contCostM=contCost
 
                                 insp1.initTopHist()
