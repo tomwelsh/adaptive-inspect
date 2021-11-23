@@ -147,11 +147,12 @@ class inspect:
 		return value
 
 	def calcContainedCost(self,node):
-		tempCosts={}
-		nodes=self.scTarget.getContained(self.scTarget.getContainer(node))
-		for n in nodes:
-				tempCosts[n[1]]=self.costs[n[1]]*self.contCostM
-		return tempCosts
+		if self.contCostM!=0:
+			tempCosts={}
+			nodes=self.scTarget.getContained(self.scTarget.getContainer(node))
+			for n in nodes:
+					tempCosts[n[1]]=self.costs[n[1]]*self.contCostM
+			return tempCosts
 
 	def setContextualValue(self,node,cval):
 		#for i in range(len(self.sc))

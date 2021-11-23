@@ -10,29 +10,31 @@ import time
 #AInsp loop
 #experiment parameters
 netSizes=[100]
-randomCosts=[0.3,0.5,1]
-nodeTweak=[0]#,0.3,0.4]
+randomCosts=[0.1,0.2,0.3,0.4,0.5,0.6]
+nodeTweak=[0.25,0.5,0.75,1]
 #adj=[True,False]
-monitor=[False]
-container=[0.1,0.5]
-centr=[0,1] #0 is none, 1 is in, 2 is out, 3 is both
+monitor=[True]
+container=[0,0.1]
+adjr=[0,1] #0 is none, 1 is in, 2 is out, 3 is both
 #costTweak=[0,1,2,3,4,5]
 runs=100
 timeout=10
 avgs=open(("avgs%f" % time.time()),'w')
 dataSet=open("data%f"% time.time(),'w')
 dataSet.write("NetSize,RandomCosts,MonitorFlag,NodeTweak,AdjacencyFlag,CalcCentr,contCost,Results")
+for run in range(runs):
+    dataSet.write(","+str(run))
 avgs.write("NetSize,RandomCosts,MonitorFlag,NodeTweak,AdjacencyFlag,CalcCentr,contCost,Avg")
 calcCent=[True,False]
 
-for calcC in calcCent:
-    for size in netSizes:
-        for rCosts in randomCosts:
-            for m in monitor:
-                for contCost in container:   #increase or not in contCost
-                    for nTweak in nodeTweak:
-                        for cent in centr:  #centrality flag
-                            dataSet.write("\n%d,%s,%s,%f,%d,%s,%f" % (size,rCosts,m,nTweak,cent,calcC,contCost))
+for nTweak in nodeTweak:
+    for rCosts in randomCosts:
+        for calcC in calcCent:
+            for contCost in container:   #increase or not in contCost
+                for adj in adjr:  #centrality flag
+                    for m in monitor:
+                        for size in netSizes:
+                            dataSet.write("\n%d,%s,%s,%f,%d,%s,%f" % (size,rCosts,m,nTweak,adj,calcC,contCost))
                             dataSet.flush()
                             results=[]
                             result=0
@@ -63,11 +65,11 @@ for calcC in calcCent:
                                     if m==True:
                                         insp1.monitorTopology()
                                     if calcC==True:
-                                        insp1.analyseValue(cent)
+                                        insp1.analyseValue(adj)
 
 
                                     plan=insp1.planInspection()
-                                    insp1.executeInspection(plan,cent)
+                                    insp1.executeInspection(plan,adj)
 
                                     if insp1.found==insp1.suspectNodes:
                                         found=True
@@ -83,7 +85,7 @@ for calcC in calcCent:
                                 result=result+i
                                 dataSet.write(",%d"%i)
                                 #dataSet.write(",%d"%result/runs)
-                            avgs.write("\n%d,%s,%s,%f,%d,%s,%f,%d" % (size,rCosts,m,nTweak,cent,calcC,contCost,result/runs))
+                            avgs.write("\n%d,%s,%s,%f,%d,%s,%f,%d" % (size,rCosts,m,nTweak,adj,calcC,contCost,result/runs))
                             avgs.flush()
                         #    print(result/runs)#
 dataSet.close()

@@ -8,7 +8,7 @@ scT1=modelTopology.scTopology()
 #scT1.scInterface.genLinear(20)
 
 scT1.scInterface.genConnect(30)
-scT1.scInterface.genContainer(30)
+scT1.scInterface.genContainer()
 
 
 
